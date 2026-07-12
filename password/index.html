@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>覚えやすいパスワード生成ツール｜好きなキーワード入りで安全に作成</title>
+<meta name="description" content="好きな単語・キーワードを含めた覚えやすいパスワードを無料で自動生成。大文字・小文字・数字・記号の指定、先頭大文字や末尾数字などサイトごとの細かいルールにも対応。登録不要・ブラウザ内で完結するので安心です。">
+<meta property="og:title" content="覚えやすいパスワード生成ツール｜好きなキーワード入りで安全に作成">
+<meta property="og:description" content="好きな単語入りの覚えやすいパスワードを無料生成。サイトごとの細かいパスワード要件にも対応。">
+<meta property="og:type" content="website">
+<style>
+  :root {
+    color-scheme: light dark;
+  }
+  body {
+    font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+    max-width: 640px;
+    margin: 40px auto;
+    padding: 0 20px;
+    background: #f7f8fa;
+    color: #222;
+  }
+  h1 {
+    font-size: 1.4rem;
+    margin-bottom: 4px;
+  }
+  p.desc {
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 0;
+  }
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-bottom: 20px;
+  }
+  label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+  input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+  }
+  .options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .options label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: normal;
+    background: #f0f2f5;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .length-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 16px 0;
+  }
+  button {
+    background: #4a6cf7;
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    width: 100%;
+  }
+  button:hover {
+    background: #3955d1;
+  }
+  .result {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f0f2f5;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-family: monospace;
+    font-size: 1.05rem;
+  }
+  .strength {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-left: 8px;
+  }
+  .strength.weak { background: #ffdcdc; color: #b30000; }
+  .strength.normal { background: #fff3cd; color: #8a6800; }
+  .strength.strong { background: #d4f7dc; color: #1b7a34; }
+  .copy-btn {
+    background: #e0e4eb;
+    color: #333;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    width: auto;
+  }
+  .note {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 16px;
+  }
+  @media (prefers-color-scheme: dark) {
+    body { background: #16181d; color: #eee; }
+    .card { background: #22252b; box-shadow: none; }
+    input[type="text"] { background: #2c2f36; border-color: #444; color: #eee; }
+    .options label, .result { background: #2c2f36; }
+    .copy-btn { background: #3a3d44; color: #eee; }
+  }
+</style>
+</head>
+<body>
+
+<p style="font-size:0.85rem;"><a href="../" style="color:#4a6cf7;">← ツール一覧に戻る</a></p>
+
+<h1>覚えやすいパスワード生成ツール</h1>
+<p class="desc">好きな単語をもとに、覚えやすくて強いパスワードを自動生成します。登録不要・完全無料。</p>
+
+<div class="card">
+  <label for="keyword">キーワード（例：好きな言葉、覚えやすい単語）</label>
+  <input type="text" id="keyword" placeholder="例: sakura" maxlength="20">
+
+  <label style="margin-top:16px;">キーワードの位置</label>
+  <div class="options">
+    <label><input type="radio" name="keyword-pos" id="pos-start" value="start"> 先頭に置く</label>
+    <label><input type="radio" name="keyword-pos" id="pos-end" value="end"> 末尾に置く</label>
+    <label><input type="radio" name="keyword-pos" id="pos-random" value="random" checked> 自由な位置に含める</label>
+  </div>
+
+  <div class="options">
+    <label><input type="checkbox" id="opt-upper" checked> 大文字を含める</label>
+    <label><input type="checkbox" id="opt-lower" checked> 小文字を含める</label>
+    <label><input type="checkbox" id="opt-number" checked> 数字を含める</label>
+    <label><input type="checkbox" id="opt-symbol" checked> 記号を含める</label>
+  </div>
+
+  <label style="margin-top:16px;">サイトごとの細かいルールに対応</label>
+  <div class="options">
+    <label><input type="checkbox" id="rule-start-upper"> 先頭は必ず英大文字にする</label>
+    <label><input type="checkbox" id="rule-end-number"> 末尾は必ず数字にする</label>
+    <label><input type="checkbox" id="rule-no-repeat"> 同じ文字の連続を禁止（例: aaa）</label>
+    <label><input type="checkbox" id="rule-no-sequence"> 連続した並び順を禁止（例: abc, 123）</label>
+  </div>
+
+  <div class="length-row">
+    <label for="length" style="margin-bottom:0;">文字数</label>
+    <input type="range" id="length" min="8" max="24" value="12" style="flex:1;">
+    <span id="length-val">12</span>
+  </div>
+
+  <button id="generate">パスワードを生成する</button>
+</div>
+
+<div class="card" id="results" style="display:none;">
+  <label>生成結果（候補5件）</label>
+  <div id="result-list"></div>
+  <p class="note">※ 生成されたパスワードはこの画面上でのみ作成され、外部には送信されません。重要なアカウントに使う場合は、必ずご自身で内容を確認・カスタマイズしてください。</p>
+</div>
+
+<div class="card">
+  <h2 style="font-size:1.1rem;">このツールの特徴</h2>
+  <p style="font-size:0.9rem; line-height:1.8;">
+    完全にランダムなパスワードは強力ですが、覚えられずに結局メモしてしまいがちです。このツールは<strong>自分の好きなキーワードをそのまま含めた</strong>パスワードを生成するので、「自分だけの目印」があって覚えやすいのが特徴です。キーワードの前後にランダムな文字を追加することで、強度もしっかり確保します。
+  </p>
+  <h2 style="font-size:1.1rem;">サイトごとの細かいルールに対応</h2>
+  <p style="font-size:0.9rem; line-height:1.8;">
+    Webサービスによってパスワードの条件はさまざまです。「大文字と数字を必ず含める」「記号は使えない」「先頭は英字のみ」など、登録画面でエラーが出て困った経験はありませんか？このツールでは以下の条件を自由に組み合わせられます。
+  </p>
+  <ul style="font-size:0.9rem; line-height:1.8;">
+    <li>大文字・小文字・数字・記号のON/OFF</li>
+    <li>キーワードを先頭・末尾・自由な位置に配置</li>
+    <li>先頭は必ず英大文字にする</li>
+    <li>末尾は必ず数字にする</li>
+    <li>同じ文字の3連続（aaa等）を避ける</li>
+    <li>連続した並び順（abc・123等）を避ける</li>
+  </ul>
+  <h2 style="font-size:1.1rem;">安全性について</h2>
+  <p style="font-size:0.9rem; line-height:1.8;">
+    生成処理はすべてお使いのブラウザの中だけで行われ、入力したキーワードや生成されたパスワードが外部のサーバーに送信されることは一切ありません。なお、キーワードにはニックネームや誕生日など他人に推測されやすい情報を避けると、より安全にお使いいただけます。
+  </p>
+</div>
+
+<script>
+const SYMBOLS = "!@#$%&*?";
+const NUMBERS = "0123456789";
+
+const lengthInput = document.getElementById('length');
+const lengthVal = document.getElementById('length-val');
+lengthInput.addEventListener('input', () => {
+  lengthVal.textContent = lengthInput.value;
+});
+
+function randomChar(pool) {
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function shuffle(str) {
+  const arr = str.split('');
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.join('');
+}
+
+const UPPER_POOL = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+const LOWER_POOL = 'abcdefghijkmnpqrstuvwxyz';
+
+function hasRepeat(str) {
+  return /(.)\1\1/.test(str); // 同じ文字が3回以上連続
+}
+
+function hasSequence(str) {
+  const s = str.toLowerCase();
+  for (let i = 0; i < s.length - 2; i++) {
+    const a = s.charCodeAt(i), b = s.charCodeAt(i + 1), c = s.charCodeAt(i + 2);
+    if (b === a + 1 && c === b + 1) return true; // abc, 123 のような昇順3連続
+    if (b === a - 1 && c === b - 1) return true; // cba, 321 のような降順3連続
+  }
+  return false;
+}
+
+const SYMBOL_RE = /[!@#$%&*?]/;
+
+function isSeq3(a, b, c) {
+  const x = a.toLowerCase().charCodeAt(0), y = b.toLowerCase().charCodeAt(0), z = c.toLowerCase().charCodeAt(0);
+  return (y === x + 1 && z === y + 1) || (y === x - 1 && z === y - 1);
+}
+
+// 連続禁止ルール違反をランダム再生成任せにせず、違反箇所の文字だけ差し替えて直す
+// (文字種が少ない設定では再生成を繰り返しても違反が消えないことがあるため)
+function repairMiddle(middle, fillPool, opts) {
+  if (!opts.ruleNoRepeat && !opts.ruleNoSequence) return middle;
+  const arr = middle.split('');
+  for (let pass = 0; pass < 5; pass++) {
+    let changed = false;
+    for (let i = 2; i < arr.length; i++) {
+      for (let t = 0; t < 20; t++) {
+        const bad =
+          (opts.ruleNoRepeat && arr[i] === arr[i - 1] && arr[i] === arr[i - 2]) ||
+          (opts.ruleNoSequence && isSeq3(arr[i - 2], arr[i - 1], arr[i]));
+        if (!bad) break;
+        arr[i] = randomChar(fillPool);
+        changed = true;
+      }
+    }
+    if (!changed) break;
+  }
+  return arr.join('');
+}
+
+function buildCandidate(keyword, opts, length) {
+  let base = keyword.replace(/[^a-zA-Z0-9]/g, '');
+  if (base.length === 0) base = 'pass';
+  // キーワードは入力されたままの大文字・小文字を保つ(勝手に変換すると覚えやすさが失われるため)
+  let kw = base;
+
+  // 先頭大文字ルール: キーワードが先頭に来る場合はキーワードの1文字目を大文字化し、
+  // それ以外の場合は先頭専用の大文字を1つ確保する
+  let startChar = '';
+  if (opts.ruleStartUpper) {
+    if (opts.keywordPos === 'start' && /[a-zA-Z]/.test(kw[0])) {
+      kw = kw[0].toUpperCase() + kw.slice(1);
+    } else {
+      startChar = randomChar(UPPER_POOL);
+    }
+  }
+
+  // 末尾数字ルール: キーワードが末尾かつ数字で終わるならそのまま、それ以外は末尾専用の数字を1つ確保する
+  let endChar = '';
+  if (opts.ruleEndNumber && !(opts.keywordPos === 'end' && /[0-9]$/.test(kw))) {
+    endChar = randomChar(NUMBERS);
+  }
+
+  // 選択された文字種のうち、キーワード・専用枠のどこにも無いものを1文字ずつ確保する
+  const fixed = startChar + kw + endChar;
+  let required = '';
+  if (opts.useNumber && !/[0-9]/.test(fixed)) required += randomChar(NUMBERS);
+  if (opts.useSymbol && !SYMBOL_RE.test(fixed)) required += randomChar(SYMBOLS);
+  if (opts.useUpper && !/[A-Z]/.test(fixed)) required += randomChar(UPPER_POOL);
+  if (opts.useLower && !/[a-z]/.test(fixed)) required += randomChar(LOWER_POOL);
+
+  const fillPool =
+    (opts.useUpper ? UPPER_POOL : '') +
+    (opts.useLower ? LOWER_POOL : '') +
+    (opts.useNumber ? NUMBERS : '') +
+    (opts.useSymbol ? SYMBOLS : '') || LOWER_POOL;
+
+  // 中間部: 指定文字数に足りない分を埋める
+  // (キーワードが長い等で必須文字種が入り切らない場合のみ、指定文字数を超えることを許す)
+  const middleLen = Math.max(length - fixed.length, required.length);
+  let middle = required;
+  while (middle.length < middleLen) middle += randomChar(fillPool);
+  middle = repairMiddle(shuffle(middle), fillPool, opts);
+
+  // キーワード位置に応じて組み立てる(キーワードは常にひとかたまり)
+  if (opts.keywordPos === 'start') {
+    return startChar + kw + middle + endChar;
+  } else if (opts.keywordPos === 'end') {
+    return startChar + middle + kw + endChar;
+  } else {
+    const splitPoint = Math.floor(Math.random() * (middle.length + 1));
+    return startChar + middle.slice(0, splitPoint) + kw + middle.slice(splitPoint) + endChar;
+  }
+}
+
+function buildPassword(keyword, opts, length) {
+  // キーワード自体がルール違反を含む場合(例: sakura123の「123」)、そのルールは満たしようがないため
+  // リトライ判定から除外する(残しておくと他のルールのチェックまで機能しなくなる)
+  const base = keyword.replace(/[^a-zA-Z0-9]/g, '') || 'pass';
+  const checkRepeat = opts.ruleNoRepeat && !hasRepeat(base);
+  const checkSequence = opts.ruleNoSequence && !hasSequence(base);
+
+  let result = buildCandidate(keyword, opts, length);
+  let attempts = 0;
+  while (attempts < 50 &&
+    ((checkRepeat && hasRepeat(result)) ||
+     (checkSequence && hasSequence(result)))) {
+    result = buildCandidate(keyword, opts, length);
+    attempts++;
+  }
+  return result;
+}
+
+function scoreStrength(pw, useUpper, useNumber, useSymbol) {
+  let score = 0;
+  if (pw.length >= 12) score += 2;
+  else if (pw.length >= 8) score += 1;
+  if (useUpper) score += 1;
+  if (useNumber) score += 1;
+  if (useSymbol) score += 1;
+
+  if (score <= 2) return { label: '弱い', cls: 'weak' };
+  if (score <= 4) return { label: '普通', cls: 'normal' };
+  return { label: '強い', cls: 'strong' };
+}
+
+document.getElementById('generate').addEventListener('click', () => {
+  const keyword = document.getElementById('keyword').value.trim();
+  const opts = {
+    useUpper: document.getElementById('opt-upper').checked,
+    useLower: document.getElementById('opt-lower').checked,
+    useNumber: document.getElementById('opt-number').checked,
+    useSymbol: document.getElementById('opt-symbol').checked,
+    ruleStartUpper: document.getElementById('rule-start-upper').checked,
+    ruleEndNumber: document.getElementById('rule-end-number').checked,
+    ruleNoRepeat: document.getElementById('rule-no-repeat').checked,
+    ruleNoSequence: document.getElementById('rule-no-sequence').checked,
+    keywordPos: document.querySelector('input[name="keyword-pos"]:checked').value,
+  };
+  const length = parseInt(lengthInput.value, 10);
+
+  if (!keyword) {
+    alert('キーワードを入力してください');
+    return;
+  }
+  if (!opts.useUpper && !opts.useLower && !opts.useNumber && !opts.useSymbol) {
+    alert('少なくとも1つは文字種を選択してください');
+    return;
+  }
+
+  const list = document.getElementById('result-list');
+  list.innerHTML = '';
+
+  for (let i = 0; i < 5; i++) {
+    const pw = buildPassword(keyword, opts, length);
+    const strength = scoreStrength(pw, opts.useUpper, opts.useNumber, opts.useSymbol);
+
+    const row = document.createElement('div');
+    row.className = 'result';
+
+    const left = document.createElement('span');
+    left.textContent = pw;
+
+    const right = document.createElement('span');
+
+    const badge = document.createElement('span');
+    badge.className = 'strength ' + strength.cls;
+    badge.textContent = strength.label;
+
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'copy-btn';
+    copyBtn.textContent = 'コピー';
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(pw);
+      copyBtn.textContent = 'コピー済';
+      setTimeout(() => copyBtn.textContent = 'コピー', 1500);
+    });
+
+    right.appendChild(badge);
+    right.appendChild(copyBtn);
+
+    row.appendChild(left);
+    row.appendChild(right);
+    list.appendChild(row);
+  }
+
+  document.getElementById('results').style.display = 'block';
+});
+</script>
+
+</body>
+</html>

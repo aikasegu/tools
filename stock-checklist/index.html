@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>株の逆張り鉄則チェックツール｜自分の売買ルールを判定サポート</title>
+<meta name="description" content="朝の急落は買い、急騰は売りなど、逆張り系の売買ルールに今の値動きが当てはまるか判定するツール。数値を入力するだけで、8つの鉄則に照らした参考判定を表示します。投資助言ではなく判断サポートツールです。">
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+    max-width: 640px;
+    margin: 40px auto;
+    padding: 0 20px;
+    background: #f7f8fa;
+    color: #222;
+  }
+  h1 { font-size: 1.4rem; margin-bottom: 4px; }
+  h2 { font-size: 1.05rem; }
+  p.desc { color: #666; font-size: 0.9rem; margin-top: 0; }
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-bottom: 20px;
+  }
+  .warn {
+    background: #fff3cd;
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-size: 0.85rem;
+    line-height: 1.7;
+    color: #6b5300;
+    margin-bottom: 20px;
+  }
+  label { display: block; font-weight: bold; margin-bottom: 6px; }
+  input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+  }
+  .field { margin-bottom: 16px; }
+  .field small { display:block; font-weight: normal; color: #888; margin-top: 4px; }
+  .row2 { display: flex; gap: 12px; }
+  .row2 .field { flex: 1; }
+  .options { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0 16px; }
+  .options label {
+    display: flex; align-items: center; gap: 6px;
+    font-weight: normal; background: #f0f2f5;
+    padding: 8px 12px; border-radius: 8px; cursor: pointer;
+  }
+  .slider-row { display: flex; align-items: center; gap: 10px; }
+  button.main {
+    background: #4a6cf7; color: #fff; border: none;
+    padding: 12px 20px; border-radius: 8px; font-size: 1rem;
+    cursor: pointer; width: 100%; margin-top: 8px;
+  }
+  button.main:hover { background: #3955d1; }
+  .result-box {
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 12px;
+  }
+  .result-buy { background: #d4f7dc; color: #1b5e20; }
+  .result-sell { background: #ffdcdc; color: #8a1c1c; }
+  .result-wait { background: #eef0f5; color: #444; }
+  .result-box h3 { margin: 0 0 8px; font-size: 1.15rem; }
+  .result-box p { margin: 4px 0; font-size: 0.9rem; line-height: 1.7; }
+  .rule-tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    background: rgba(0,0,0,0.08);
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-right: 6px;
+    margin-top: 4px;
+  }
+  p, li { font-size: 0.9rem; line-height: 1.8; }
+  footer { margin-top: 40px; font-size: 0.75rem; color: #999; text-align: center; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #16181d; color: #eee; }
+    .card { background: #22252b; box-shadow: none; }
+    input[type="number"] { background: #2c2f36; border-color: #444; color: #eee; }
+    .options label { background: #2c2f36; }
+    .warn { background: #4a3f10; color: #ffe9a8; }
+    .result-buy { background: #113d1e; color: #a8f0bb; }
+    .result-sell { background: #4a1414; color: #ffbdbd; }
+    .result-wait { background: #2c2f36; color: #ccc; }
+    .rule-tag { background: rgba(255,255,255,0.1); }
+  }
+</style>
+</head>
+<body>
+
+<p style="font-size:0.85rem;"><a href="../" style="color:#4a6cf7;">← ツール一覧に戻る</a></p>
+
+<h1>逆張り鉄則チェックツール</h1>
+<p class="desc">数値を入力すると、逆張り系の売買ルールに今の状況が当てはまるか参考表示します。</p>
+
+<div class="warn">
+  ⚠️ このツールは投資助言ではありません。過去の経験則をチェックリスト化した<strong>判断の参考ツール</strong>です。実際の売買判断はご自身の責任で行ってください。特に、このルールセットには<strong>損切り（どこまで下がったら手放すか）の基準が含まれていません</strong>。急落が「一時的な行き過ぎ」ではなく「悪材料による下落」の場合、反発せず下がり続けるリスクがあります。少額での検証をおすすめします。
+</div>
+
+<div class="card">
+  <div class="field">
+    <label for="time-zone">今の時間帯</label>
+    <div class="options">
+      <label><input type="radio" name="tz" value="morning" checked> 午前</label>
+      <label><input type="radio" name="tz" value="afternoon"> 午後</label>
+    </div>
+  </div>
+
+  <div class="row2">
+    <div class="field">
+      <label for="prev-close">前日終値</label>
+      <input type="number" id="prev-close" placeholder="例: 1000" step="any">
+    </div>
+    <div class="field">
+      <label for="open-price">今日の始値</label>
+      <input type="number" id="open-price" placeholder="例: 1000" step="any">
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="current-price">現在値</label>
+    <input type="number" id="current-price" placeholder="例: 970" step="any">
+    <small>今この瞬間の株価</small>
+  </div>
+
+  <div class="field">
+    <label for="range-pos">直近のレンジの中での位置</label>
+    <div class="options">
+      <label><input type="radio" name="range" value="high" > 高値圏（このところ高い水準）</label>
+      <label><input type="radio" name="range" value="low"> 安値圏（このところ安い水準）</label>
+      <label><input type="radio" name="range" value="mid" checked> レンジ中央・判断つかない</label>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="threshold">「急落・急騰」と判定するしきい値</label>
+    <div class="slider-row">
+      <input type="range" id="threshold" min="1" max="10" step="0.5" value="3" style="flex:1;">
+      <span id="threshold-val">3.0</span>%
+    </div>
+    <small>前日終値からこの割合以上動いたら「急」とみなします。銘柄の値動きの荒さに合わせて調整してください。</small>
+  </div>
+
+  <button class="main" id="judge">鉄則で判定する</button>
+</div>
+
+<div class="card" id="result" style="display:none;"></div>
+
+<div class="card">
+  <h2>チェックしている8つの鉄則</h2>
+  <ol>
+    <li>朝の急落は「買い」、朝の急騰は「売り」</li>
+    <li>午後の急騰は追わない。午後の急落は翌朝に狙う</li>
+    <li>朝の急落でパニック売りはしない。動かないときは「休む」</li>
+    <li>高値を追わねば売らず、急落せねば買わず、横ばいなら動かず</li>
+    <li>陰線（下がった日）で買い、陽線（上がった日）で売る</li>
+    <li>相場の波に流されるな。常に「逆」を突け</li>
+    <li>高値圏、安値圏のもみ合いは、焦らず「待ち」に徹する</li>
+    <li>高値横ばいから「もう一段」跳ねたら迷わず利益を確定する</li>
+  </ol>
+  <p>入力した数値と時間帯・レンジ位置から、上記のうち当てはまるルールを自動で拾い出して表示します。複数のルールが同時に当てはまる場合はすべて表示するので、最終判断はご自身で行ってください。</p>
+</div>
+
+<footer>
+  <p><a href="../privacy/" style="color:#999;">プライバシーポリシー</a></p>
+  <p>&copy; 便利ツール集</p>
+</footer>
+
+<script>
+const thresholdInput = document.getElementById('threshold');
+const thresholdVal = document.getElementById('threshold-val');
+thresholdInput.addEventListener('input', () => {
+  thresholdVal.textContent = parseFloat(thresholdInput.value).toFixed(1);
+});
+
+document.getElementById('judge').addEventListener('click', () => {
+  const tz = document.querySelector('input[name="tz"]:checked').value;
+  const rangePos = document.querySelector('input[name="range"]:checked').value;
+  const prevClose = parseFloat(document.getElementById('prev-close').value);
+  const openPrice = parseFloat(document.getElementById('open-price').value);
+  const currentPrice = parseFloat(document.getElementById('current-price').value);
+  const threshold = parseFloat(thresholdInput.value);
+
+  const resultBox = document.getElementById('result');
+
+  if (isNaN(prevClose) || isNaN(openPrice) || isNaN(currentPrice) || prevClose <= 0) {
+    resultBox.style.display = 'block';
+    resultBox.className = 'card';
+    resultBox.innerHTML = '<p>前日終値・今日の始値・現在値をすべて入力してください。</p>';
+    return;
+  }
+
+  // 前日終値を基準にした変化率(急落・急騰の判定用)
+  const changeFromPrevClose = ((currentPrice - prevClose) / prevClose) * 100;
+  // 始値を基準にした変化(陰線・陽線=今日の値動きの方向の判定用)
+  const changeFromOpen = ((currentPrice - openPrice) / openPrice) * 100;
+
+  const isSharpDrop = changeFromPrevClose <= -threshold;
+  const isSharpRise = changeFromPrevClose >= threshold;
+  const isFlat = Math.abs(changeFromPrevClose) < threshold;
+  const isYin = currentPrice < openPrice; // 陰線(始値より下)
+  const isYang = currentPrice > openPrice; // 陽線(始値より上)
+
+  const hits = []; // { signal: 'buy'|'sell'|'wait', text, rule }
+
+  if (tz === 'morning') {
+    if (isSharpDrop) {
+      hits.push({ signal: 'buy', text: '朝に急落しています。逆張りの「買い」局面に該当します。', rule: '鉄則1' });
+      hits.push({ signal: 'wait', text: 'ただし急落直後の飛び乗りではなく、パニック売りに巻き込まれていないか一呼吸置きましょう。', rule: '鉄則3' });
+    } else if (isSharpRise) {
+      hits.push({ signal: 'sell', text: '朝に急騰しています。逆張りの「売り」局面に該当します。', rule: '鉄則1' });
+    } else {
+      hits.push({ signal: 'wait', text: '朝の値動きが小さく、急落・急騰のどちらでもありません。無理に動く理由がない局面です。', rule: '鉄則4' });
+    }
+  } else {
+    if (isSharpRise) {
+      hits.push({ signal: 'wait', text: '午後に急騰していますが、この鉄則では午後の急騰は「追わない」とされています。新規の飛び乗りは避ける局面です。', rule: '鉄則2' });
+    } else if (isSharpDrop) {
+      hits.push({ signal: 'wait', text: '午後に急落していますが、この鉄則では狙うのは「翌朝」とされています。今すぐではなく、明日の朝の値動きを待つ局面です。', rule: '鉄則2' });
+    } else {
+      hits.push({ signal: 'wait', text: '午後の値動きが小さく、急落・急騰のどちらでもありません。', rule: '鉄則4' });
+    }
+  }
+
+  if (isYin) {
+    hits.push({ signal: 'buy', text: '始値より現在値が低い「陰線」の状態です。この鉄則では陰線は買いのタイミングとされています。', rule: '鉄則5' });
+  } else if (isYang) {
+    hits.push({ signal: 'sell', text: '始値より現在値が高い「陽線」の状態です。この鉄則では陽線は売りのタイミングとされています。', rule: '鉄則5' });
+  }
+
+  if (rangePos === 'high') {
+    if (isSharpRise) {
+      hits.push({ signal: 'sell', text: '高値圏でさらに一段跳ねている状態です。利益確定を検討するタイミングに該当する可能性があります。', rule: '鉄則8' });
+    } else {
+      hits.push({ signal: 'wait', text: '高値圏でのもみ合いと考えられます。焦らず様子を見る局面です。', rule: '鉄則7' });
+    }
+  } else if (rangePos === 'low') {
+    hits.push({ signal: 'wait', text: '安値圏でのもみ合いと考えられます。焦らず様子を見る局面です。', rule: '鉄則7' });
+  }
+
+  // 総合判定(件数が最も多いシグナルを採用、同数なら様子見を優先)
+  const counts = { buy: 0, sell: 0, wait: 0 };
+  hits.forEach(h => counts[h.signal]++);
+  let overall = 'wait';
+  if (counts.buy > counts.sell && counts.buy > counts.wait) overall = 'buy';
+  else if (counts.sell > counts.buy && counts.sell > counts.wait) overall = 'sell';
+
+  const overallLabel = { buy: '買い寄りの局面', sell: '売り寄りの局面', wait: '様子見（待ち）の局面' }[overall];
+  const overallClass = { buy: 'result-buy', sell: 'result-sell', wait: 'result-wait' }[overall];
+
+  let html = `<div class="result-box ${overallClass}">
+    <h3>総合判定：${overallLabel}</h3>
+    <p>前日終値比: ${changeFromPrevClose.toFixed(2)}% ／ 始値比: ${changeFromOpen.toFixed(2)}%</p>
+  </div>`;
+
+  html += '<div style="margin-top:12px;">';
+  hits.forEach(h => {
+    html += `<p><span class="rule-tag">${h.rule}</span>${h.text}</p>`;
+  });
+  html += '</div>';
+
+  resultBox.style.display = 'block';
+  resultBox.className = 'card';
+  resultBox.innerHTML = html;
+  resultBox.scrollIntoView({ behavior: 'smooth' });
+});
+</script>
+
+</body>
+</html>
